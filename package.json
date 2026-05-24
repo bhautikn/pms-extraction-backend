@@ -2,11 +2,13 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/function.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js"
+    "build:tsc": "tsc",
+    "start": "node dist/server.js",
+    "start:azure": "npm run build:tsc && npx func start",
+    "deploy": "node scripts/deploy.js"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +16,7 @@
   "type": "commonjs",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
+    "@azure/functions": "^4.16.0",
     "@azure/storage-blob": "^12.31.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
@@ -27,6 +30,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.2",
     "multer": "^2.1.1",
+    "serverless-http": "^4.0.0",
     "uuid": "^14.0.0",
     "xss": "^1.0.15"
   },
@@ -40,6 +44,7 @@
     "@types/multer": "^2.1.0",
     "@types/node": "^25.9.1",
     "@types/uuid": "^10.0.0",
+    "azure-functions-core-tools": "^4.11.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^6.0.3"
   }

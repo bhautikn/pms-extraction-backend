@@ -41,7 +41,9 @@ Each ship system or component must follow this structure:
   "description": "",
   "source_pages": [],
   "spares": [],
-  "jobs": []
+  "jobs": [],
+  "ai_remarks": "",
+  "ai_remarks_type": ""
 }
 ```
 
@@ -57,7 +59,9 @@ Each spare part must follow this structure:
   "material": "",
   "quantity": null,
   "drawing_reference": "",
-  "remarks": ""
+  "remarks": "",
+  "ai_remarks": "",
+  "ai_remarks_type": ""
 }
 ```
 
@@ -72,7 +76,9 @@ Each maintenance job must follow this structure:
   "job_type": "",
   "frequency": "",
   "description": "",
-  "related_spares": []
+  "related_spares": [],
+  "ai_remarks": "",
+  "ai_remarks_type": ""
 }
 ```
 
@@ -238,6 +244,11 @@ Apply the following rules to decide which character is correct:
 
 ### General Rule
 Always use surrounding characters and engineering domain knowledge to determine the correct character. Do NOT apply a blanket rule — evaluate each occurrence in its own context.
+
+## AI Remarks & Doubt Flagging
+If you have any doubt or need to make remarks about a spare part, component, or job (e.g., "I am not sure if this is a 0 or O", "The source text is extremely blurry here", "This part number appears to be truncated in the scan"), you must populate the `ai_remarks` and `ai_remarks_type` fields.
+- `ai_remarks`: A concise explanation of your doubt or observation. (Leave as `""` if no doubt/remark exists).
+- `ai_remarks_type`: Set to `"doubt"` if you are uncertain about the extracted value (e.g. OCR ambiguity between 0/O). Set to `"info"` if you are certain but want to surface a structural note (e.g. "This table had no header"). Leave as `""` if there are no remarks.
 
 # Document Types You May Encounter
 

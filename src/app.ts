@@ -12,6 +12,10 @@ import settingsRoutes from './routes/settings.routes';
 
 const app = express();
 
+// Trust the first proxy (Azure Functions/API Gateway)
+// Required for express-rate-limit to extract the correct client IP
+app.set('trust proxy', 1);
+
 // ─── Security Headers ─────────────────────────────────────────────────────────
 app.use(
   helmet({

@@ -38,7 +38,7 @@ const userSchema = new Schema<IUser>(
 // Prevent leaking passwordHash and encrypted API key in JSON output
 userSchema.set('toJSON', {
   transform: (_doc, ret) => {
-    delete ret.passwordHash;
+    delete (ret as any).passwordHash;
     if (ret.settings?.anthropicApiKey) {
       ret.settings.anthropicApiKey = undefined;
     }

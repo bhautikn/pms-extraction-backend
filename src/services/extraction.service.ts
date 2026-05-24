@@ -10,6 +10,17 @@ export async function createExtraction(
   user: IUser,
   file: Express.Multer.File,
 ): Promise<{ extractionId: string }> {
+  // 0. Validate API Key before anything else
+  const encryptedKey = user.settings?.anthropicApiKey;
+  if (!encryptedKey) throw new Error('Before processing, you need to provide an Anthropic API Key in Settings.');
+  
+  let apiKey: string;
+  try {
+    apiKey = decrypt(encryptedKey);
+  } catch (err) {
+    throw new Error('Your Anthropic API Key is invalid or corrupted. Please update it in Settings before processing.');
+  }
+
   // 1. Upload PDF to Azure Blob
   const pdfUrl = await uploadPdfToBlob(file.buffer, file.originalname);
 
@@ -24,10 +35,6 @@ export async function createExtraction(
   // 3. Kick off async Claude processing (fire-and-forget, update record when done)
   (async () => {
     try {
-      const encryptedKey = user.settings?.anthropicApiKey;
-      if (!encryptedKey) throw new Error('No API key configured');
-
-      const apiKey = decrypt(encryptedKey);
       const model = user.settings?.claudeModel ?? 'claude-opus-4-7';
 
       const result = await extractFromPdf(file.buffer, apiKey, model);
@@ -83,6 +90,17 @@ export async function retryExtraction(
   if (!extraction) throw new Error('Extraction not found');
   if (extraction.status !== ExtractionStatus.FAILED) throw new Error('Can only retry failed extractions');
 
+  // 0. Validate API Key before anything else
+  const encryptedKey = user.settings?.anthropicApiKey;
+  if (!encryptedKey) throw new Error('Before processing, you need to provide an Anthropic API Key in Settings.');
+  
+  let apiKey: string;
+  try {
+    apiKey = decrypt(encryptedKey);
+  } catch (err) {
+    throw new Error('Your Anthropic API Key is invalid or corrupted. Please update it in Settings before processing.');
+  }
+
   // Reset status
   extraction.status = ExtractionStatus.PROCESSING;
   extraction.errorMessage = undefined;
@@ -91,10 +109,6 @@ export async function retryExtraction(
   // Kick off async processing again
   (async () => {
     try {
-      const encryptedKey = user.settings?.anthropicApiKey;
-      if (!encryptedKey) throw new Error('No API key configured');
-
-      const apiKey = decrypt(encryptedKey);
       const model = user.settings?.claudeModel ?? 'claude-opus-4-7';
 
       const pdfBuffer = await downloadPdfFromBlob(extraction.pdfUrl);
