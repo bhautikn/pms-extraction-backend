@@ -55,11 +55,15 @@ app.http('api', {
       // Delegate to the express handler, which returns { status, headers, isBase64Encoded, body }
       const responseV3 = await expressHandler(contextV3, reqV3) as any;
 
+      const isNoBodyStatus = responseV3.status === 204 || responseV3.status === 304;
+
       return {
         status: responseV3.status,
         headers: responseV3.headers,
-        body: responseV3.isBase64Encoded
-          ? Buffer.from(responseV3.body, 'base64')
+        body: isNoBodyStatus
+          ? undefined
+          : responseV3.isBase64Encoded
+          ? Buffer.from(responseV3.body || '', 'base64')
           : responseV3.body,
       };
     } catch (error) {
