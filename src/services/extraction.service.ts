@@ -57,7 +57,7 @@ export async function createExtraction(
   // 3. Kick off async processing (fire-and-forget)
   (async () => {
     try {
-      const model = user.settings?.claudeModel ?? 'claude-opus-4-7';
+      const model = user.settings?.claudeModel ?? 'claude-opus-4-8';
       const pageCount = await getPdfPageCount(file.buffer);
 
       if (pageCount > LARGE_PDF_THRESHOLD) {
@@ -174,7 +174,7 @@ export async function retryExtraction(
   // Kick off async processing again
   (async () => {
     try {
-      const model = user.settings?.claudeModel ?? 'claude-opus-4-7';
+      const model = user.settings?.claudeModel ?? 'claude-opus-4-8';
       const pdfBuffer = await downloadPdfFromBlob(extraction.pdfUrl);
       const pageCount = await getPdfPageCount(pdfBuffer);
 

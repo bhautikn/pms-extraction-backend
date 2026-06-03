@@ -1,13 +1,17 @@
 import Anthropic from '@anthropic-ai/sdk';
-import fs from 'fs';
-import path from 'path';
+import { downloadPromptFromBlob } from './azure.service';
 
-const SYSTEM_PROMPT_PATH = path.join(__dirname, '..', 'config', 'system-prompt.md');
 let SYSTEM_PROMPT: string;
 
-function getSystemPrompt(): string {
+async function getSystemPrompt(): Promise<string> {
   if (!SYSTEM_PROMPT) {
-    SYSTEM_PROMPT = fs.readFileSync(SYSTEM_PROMPT_PATH, 'utf-8');
+    try {
+      SYSTEM_PROMPT = await downloadPromptFromBlob();
+      console.log('Successfully fetched system prompt from Azure Storage');
+    } catch (err) {
+      console.error('Failed to fetch system prompt from Azure Storage. Ensure /prompt/system-prompt.md exists.', err);
+      throw new Error('Failed to load system prompt from storage.');
+    }
   }
   return SYSTEM_PROMPT;
 }
@@ -29,7 +33,7 @@ export async function extractFromPdf(
   });
 
   const base64 = pdfBuffer.toString('base64');
-  const systemPrompt = getSystemPrompt();
+  const systemPrompt = await getSystemPrompt();
 
   const stream = await client.messages.stream({
     model,

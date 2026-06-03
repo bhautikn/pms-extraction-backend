@@ -93,6 +93,18 @@ Identify components from:
 - Section headings and table captions
 - Nameplate data and specification blocks
 
+### SKIP Index / Table of Contents Pages
+
+**Do NOT extract or derive component names from index pages, tables of contents, or any summary/listing pages.** These pages list many items in abbreviated or ambiguous form and are unreliable sources for component names. Instead, extract component names only from the **actual content pages** — the detailed sections, drawings, BOMs, and specification blocks where the component is described in full context.
+
+If a document starts with an index or table of contents, skip those pages entirely for component identification purposes.
+
+### No Spare Part Names in Component Names
+
+**Never include the spare part in a `component_name`.** A component name must identify the equipment, machinery, or assembly itself — not its spare parts listing.
+
+If the source heading says "Spare Parts for XYZ", use `"XYZ"` as the component name.
+
 Examples of valid components:
 - FUEL OVERFLOW TANK
 - SOLENOID VALVE

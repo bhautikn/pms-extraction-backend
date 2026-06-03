@@ -53,3 +53,17 @@ export async function downloadPdfFromBlob(blobUrl: string): Promise<Buffer> {
   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
   return await blockBlobClient.downloadToBuffer();
 }
+
+export async function downloadPromptFromBlob(): Promise<string> {
+  const client = getClient();
+  
+  // The user requested the container name to be 'prompt'
+  const containerClient = client.getContainerClient('prompt');
+  
+  // The blob name inside the 'prompt' container is 'system-prompt.md'
+  const blobName = 'system-prompt.md';
+  
+  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+  const buffer = await blockBlobClient.downloadToBuffer();
+  return buffer.toString('utf-8');
+}
