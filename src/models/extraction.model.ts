@@ -15,6 +15,8 @@ export interface IExtraction extends Document {
   result?: Record<string, unknown>; // Claude JSON output
   errorMessage?: string;
   tokenUsage?: ITokenUsage;
+  modelUsed?: string;
+  promptUsed?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,6 +37,8 @@ const extractionSchema = new Schema<IExtraction>(
       inputTokens: { type: Number },
       outputTokens: { type: Number },
     },
+    modelUsed: { type: String, default: undefined },
+    promptUsed: { type: String, default: undefined },
   },
   { timestamps: true },
 );

@@ -6,8 +6,9 @@ export interface JwtPayload {
   email: string;
 }
 
-export function signToken(payload: JwtPayload): string {
-  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: '7d' });
+export function signToken(payload: JwtPayload, rememberMe = false): string {
+  const expiresIn = rememberMe ? '30d' : '1d';
+  return jwt.sign(payload, env.JWT_SECRET, { expiresIn });
 }
 
 export function verifyToken(token: string): JwtPayload {

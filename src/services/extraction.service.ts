@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import { ExtractionModel } from '../models/extraction.model';
 import { ExtractionStatus } from '../enums/extractionStatus.enum';
 import { uploadPdfToBlob, downloadPdfFromBlob } from './azure.service';
-import { extractFromPdf, ClaudeResult } from './claude.service';
+import { extractFromPdf, ClaudeResult, getSystemPromptText } from './claude.service';
 import { decrypt } from '../utils/encrypt';
 import { extractJson } from '../utils/extractJson';
 import { IUser } from '../models/user.model';
@@ -46,18 +46,28 @@ export async function createExtraction(
   // 1. Upload PDF to Azure Blob
   const pdfUrl = await uploadPdfToBlob(file.buffer, file.originalname);
 
-  // 2. Create pending extraction record
+  // 2. Resolve model and prompt before creating the record
+  const model = user.settings?.claudeModel ?? 'claude-opus-4-8';
+  let promptText: string | undefined;
+  try {
+    promptText = await getSystemPromptText();
+  } catch (err) {
+    console.warn('Failed to fetch system prompt text for storage:', err);
+  }
+
+  // 3. Create pending extraction record (with model & prompt)
   const extraction = await ExtractionModel.create({
     userId: user._id,
     filename: file.originalname,
     pdfUrl,
     status: ExtractionStatus.PROCESSING,
+    modelUsed: model,
+    promptUsed: promptText,
   });
 
-  // 3. Kick off async processing (fire-and-forget)
+  // 4. Kick off async processing (fire-and-forget)
   (async () => {
     try {
-      const model = user.settings?.claudeModel ?? 'claude-opus-4-8';
       const pageCount = await getPdfPageCount(file.buffer);
 
       if (pageCount > LARGE_PDF_THRESHOLD) {
@@ -134,7 +144,7 @@ export async function getExtractions(userId: Types.ObjectId, page: number, limit
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .select('-result') // exclude large result from list view
+      .select('-result -promptUsed') // exclude large fields from list view
       .lean(),
     ExtractionModel.countDocuments({ userId }),
   ]);
@@ -165,16 +175,26 @@ export async function retryExtraction(
     throw new Error('Your Anthropic API Key is invalid or corrupted. Please update it in Settings before processing.');
   }
 
-  // Reset status
+  // Resolve model and prompt
+  const model = user.settings?.claudeModel ?? 'claude-opus-4-8';
+  let promptText: string | undefined;
+  try {
+    promptText = await getSystemPromptText();
+  } catch (err) {
+    console.warn('Failed to fetch system prompt text for storage:', err);
+  }
+
+  // Reset status and update model/prompt
   extraction.status = ExtractionStatus.PROCESSING;
   extraction.errorMessage = undefined;
   extraction.result = undefined;
+  extraction.modelUsed = model;
+  extraction.promptUsed = promptText;
   await extraction.save();
 
   // Kick off async processing again
   (async () => {
     try {
-      const model = user.settings?.claudeModel ?? 'claude-opus-4-8';
       const pdfBuffer = await downloadPdfFromBlob(extraction.pdfUrl);
       const pageCount = await getPdfPageCount(pdfBuffer);
 

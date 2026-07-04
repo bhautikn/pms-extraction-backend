@@ -16,6 +16,22 @@ async function getSystemPrompt(): Promise<string> {
   return SYSTEM_PROMPT;
 }
 
+/**
+ * Pre-warm the system prompt cache so the first extraction
+ * doesn't pay the cold-start latency of fetching from Azure Blob.
+ */
+export async function preWarmSystemPrompt(): Promise<void> {
+  await getSystemPrompt();
+}
+
+/**
+ * Returns the cached system prompt text. Useful for storing
+ * which prompt was used for a given extraction.
+ */
+export async function getSystemPromptText(): Promise<string> {
+  return getSystemPrompt();
+}
+
 export interface ClaudeResult {
   text: string;
   inputTokens: number;
@@ -78,3 +94,4 @@ export async function extractFromPdf(
     outputTokens: finalMessage.usage.output_tokens,
   };
 }
+

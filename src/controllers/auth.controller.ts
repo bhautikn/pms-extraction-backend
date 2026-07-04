@@ -32,8 +32,8 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
       sendError(res, MESSAGES.VALIDATION_ERROR, HTTP_STATUS.BAD_REQUEST, errors.array());
       return;
     }
-    const { email, password } = req.body as { email: string; password: string };
-    const { token, user } = await authService.login(email, password);
+    const { email, password, rememberMe } = req.body as { email: string; password: string; rememberMe?: boolean };
+    const { token, user } = await authService.login(email, password, !!rememberMe);
     sendSuccess(res, MESSAGES.LOGIN_SUCCESS, { token, user });
   } catch (err) {
     const message = err instanceof Error ? err.message : MESSAGES.SERVER_ERROR;

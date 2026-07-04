@@ -16,13 +16,14 @@ export async function signup(name: string, email: string, password: string) {
   return { token, user };
 }
 
-export async function login(email: string, password: string) {
+export async function login(email: string, password: string, rememberMe = false) {
   const user = await UserModel.findOne({ email: email.toLowerCase() });
   if (!user) throw new Error(MESSAGES.INVALID_CREDENTIALS);
 
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) throw new Error(MESSAGES.INVALID_CREDENTIALS);
 
-  const token = signToken({ userId: user._id.toString(), email: user.email });
+  const token = signToken({ userId: user._id.toString(), email: user.email }, rememberMe);
   return { token, user };
 }
+
