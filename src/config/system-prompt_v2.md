@@ -38,6 +38,7 @@ You understand the physical hierarchy of shipboard equipment: a **vessel** conta
   "spare_id": "",
   "part_name": "",
   "part_number": "",
+  "dimension": "",
   "material": "",
   "quantity": null,
   "drawing_reference": "",

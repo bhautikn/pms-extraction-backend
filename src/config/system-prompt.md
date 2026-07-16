@@ -49,6 +49,7 @@ You understand the physical hierarchy of shipboard equipment: a **vessel** conta
   "spare_id": "",
   "part_name": "",
   "part_number": "",
+  "dimension": "",
   "material": "",
   "quantity": null,
   "drawing_reference": "",
@@ -188,6 +189,18 @@ A spare part is an **individual replaceable item** that belongs to a component. 
 If the same code appears as `part_number` for multiple unrelated parts → it's likely a reference number, not a part number. Set to `null`.
 
 **`part_number` must be the bare identifier string only.** Never append remarks, notes, or descriptions to it. Any supplementary text goes in `remarks`.
+
+### Dimension Rules
+
+**Extract dimension/size data exactly as printed in the document.**
+
+Dimensions are physical measurements of a spare part — diameters, lengths, thicknesses, bore sizes, etc. They appear in BOM tables or parts lists as a dedicated column (e.g., "Size", "Dimension", "Spec", "Ø") or inline with the part name.
+
+- **Column-Presence Gate:** Check if the table has a dimension/size column. If it does → extract from that column. If not → check if dimensions are embedded in the part name (e.g., "O-RING Ø180x4") and extract them.
+- **Preserve format exactly:** `Ø180x4`, `φ25 × 35`, `50A`, `3/4"`, `DN50`, `25mm × 50mm × 3mm` — copy as-is
+- **Do NOT convert units** — keep original (mm, inches, A-size, DN, etc.)
+- **Do NOT infer dimensions** from your knowledge of standard part sizes
+- If no dimension data exists for a spare → set `dimension` to `""`
 
 ---
 
